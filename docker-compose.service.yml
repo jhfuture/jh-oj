@@ -1,0 +1,54 @@
+version: '3'
+services:
+  jhoj-backend-gateway:
+    container_name: jhoj-backend-gateway
+    build: # 服务的 Docker 构建文件位置
+      context: ./jhoj-backend-gateway
+      dockerfile: Dockerfile
+    ports:
+      - "8101:8101"
+    networks:
+      - jhoj-net
+
+  jhoj-backend-user-service:
+    container_name: jhoj-backend-user-service
+    build:
+      context: ./jhoj-backend-user-service
+      dockerfile: Dockerfile
+    ports:
+      - "8102:8102"
+    networks:
+      - jhoj-net
+    depends_on: # 本服务依赖的服务，控制启动先后顺序
+      - jhoj-backend-gateway
+
+  jhoj-backend-question-service:
+    container_name: jhoj-backend-question-service
+    build:
+      context: ./jhoj-backend-question-service
+      dockerfile: Dockerfile
+    ports:
+      - "8103:8103"
+    networks:
+      - jhoj-net
+    depends_on:
+      - jhoj-backend-user-service
+      - jhoj-backend-gateway
+
+  jhoj-backend-judge-service:
+    container_name: jhoj-backend-judge-service
+    build:
+      context: ./jhoj-backend-judge-service
+      dockerfile: Dockerfile
+    ports:
+      - "8104:8104"
+    networks:
+      - jhoj-net
+    depends_on:
+      - jhoj-backend-user-service
+      - jhoj-backend-question-service
+      - jhoj-backend-gateway
+
+# 网络，不定义的话就是默认网络
+networks:
+  jhoj-net:
